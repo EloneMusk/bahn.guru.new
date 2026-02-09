@@ -4,8 +4,9 @@
 
 [![License](https://img.shields.io/github/license/juliuste/bahn.guru.svg?style=flat)](license)
 
-[![bahn.guru](https://i.imgur.com/bJmvAJp.png)](https://bahn.guru)
-
+<p align="center">
+  <img src="https://github.com/EloneMusk/bahn.guru.new/blob/main/assets/screenshot.png" alt="Preview">
+</p>
 ## See also
 
 - [travel-price-map](https://github.com/juliuste/travel-price-map/) – Map of low-cost tickets ("Sparpreise") for several european cities
