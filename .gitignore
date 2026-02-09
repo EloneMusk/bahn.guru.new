@@ -27,3 +27,6 @@ assets/scripts/bundle
 !.env.example
 .vscode
 .idea
+
+# vercel
+.vercel
