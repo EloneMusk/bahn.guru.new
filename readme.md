@@ -114,3 +114,9 @@ docker run --rm -p 3000:3000 --env-file .env bahn-guru:new
 ## Contributing
 
 Issues and PRs are welcome.
+
+## Support the Project ☕️
+
+If you find Schugaa helpful, consider supporting its development!
+
+<a href='https://ko-fi.com/abhishek0978' target='_blank'><img height='36' style='border:0px;height:36px;' src='https://storage.ko-fi.com/cdn/kofi2.png?v=3' border='0' alt='Buy Me a Coffee at ko-fi.com' /></a>
