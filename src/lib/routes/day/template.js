@@ -1,7 +1,6 @@
 import { h } from 'hastscript'
 import moment from 'moment-timezone'
-// eslint-disable-next-line no-unused-vars
-import mdf from 'moment-duration-format'
+import 'moment-duration-format'
 import sort from 'lodash/sortBy.js'
 import tail from 'lodash/tail.js'
 import reverse from 'lodash/reverse.js'
@@ -24,7 +23,13 @@ const generateProducts = (legs) => {
 	if (!legs) return null
 	const result = []
 	for (const leg of legs) {
-		const product = leg.line?.productName
+		const product =
+			leg.product ||
+			leg.line?.productName ||
+			leg.line?.product ||
+			leg.line?.name ||
+			leg.line?.mode
+		if (!product) continue
 		if (result.indexOf(product) < 0) { result.push(product) }
 	}
 	return reverse(sort(result, (x) => productIndex.indexOf(x)))
@@ -52,7 +57,7 @@ const parseJourney = (api, params) => (journey) => {
 		products: generateProducts(journey.legs),
 		transfers: journey.legs.length - 1,
 		price: journey.formattedPrice,
-		rawPrice: journey.price.amount,
+		rawPrice: journey.price?.amount ?? Number.MAX_SAFE_INTEGER,
 		rawDuration: moment.duration(journey.duration).format('m'),
 		hourDuration: moment.duration(journey.duration).format('h'),
 		duration: formattedDuration,
@@ -70,10 +75,18 @@ const products = (journey) => {
 	return ['–']
 }
 
-const price = (journey) => [
-	h('span.columnLong', journey.price.euros + ',' + journey.price.cents + '€'),
-	h('span.columnShort', Math.round(+journey.price.euros + (+journey.price.cents / 100)) + '€'),
-]
+const price = (journey) => {
+	if (!journey.price) {
+		return [
+			h('span.columnLong', '–'),
+			h('span.columnShort', '–'),
+		]
+	}
+	return [
+		h('span.columnLong', journey.price.euros + ',' + journey.price.cents + '€'),
+		h('span.columnShort', Math.round(+journey.price.euros + (+journey.price.cents / 100)) + '€'),
+	]
+}
 
 const cheapestClass = (journey) => {
 	return (journey.cheapest) ? { class: 'cheapest' } : null

@@ -12,9 +12,7 @@ const createStartRoute = (api) => {
 	const template = createTemplate(api)
 	return async (req, res, next) => {
 		try {
-			// general and api-specific params
 			const { params, error: paramError } = await parseParams(req.query, { stationsOptional: true })
-			// include errors forwarded from other routes
 			const errorId = req.query.error || paramError
 			if (errorId) {
 				const error = errors[errorId] || errors.unknown

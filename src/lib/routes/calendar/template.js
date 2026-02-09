@@ -1,7 +1,6 @@
 import { h } from 'hastscript'
 import moment from 'moment-timezone'
-// eslint-disable-next-line no-unused-vars
-import mdf from 'moment-duration-format'
+import 'moment-duration-format'
 import * as helpers from '../helpers.js'
 
 const head = (api, data) => {
@@ -44,7 +43,7 @@ const calendar = (api, data) => {
 			const date = [splitDate[0]]
 			const dayClass = (date[0] === '1') ? ' new-month' : ''
 			if (splitDate.length > 1) date.push(h('span.month', ` ${splitDate[1]}`))
-			if (day.past || !day.price || !day.duration) {
+			if (day.past || !day.hasJourneys || !day.duration) {
 				days.push(h('td', { class: 'cell empty' + dayClass }, [
 					h('span.date', date),
 					h('div.priceGroup', [h('span.price', '–')]),
@@ -56,8 +55,12 @@ const calendar = (api, data) => {
 						h('span.date', date),
 						h('div.priceGroup', [
 							h('span.price', [
-								h('span.priceLong', [day.price.euros, h('sup', day.price.cents)]),
-								h('span.priceShort', Math.round(+day.price.euros + (+day.price.cents / 100)) + '€'),
+								day.price
+									? h('span.priceLong', [day.price.euros, h('sup', day.price.cents)])
+									: h('span.priceLong', '–'),
+								day.price
+									? h('span.priceShort', Math.round(+day.price.euros + (+day.price.cents / 100)) + '€')
+									: h('span.priceShort', '–'),
 							]),
 							h('span.inlineDuration', day.duration),
 						]),

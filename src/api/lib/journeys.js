@@ -1,141 +1,169 @@
-import { createClient } from 'hafas-client'
-import { profile as dbProfileRaw } from 'hafas-client/p/db/index.js'
-import { parseHook } from 'hafas-client/lib/profile-hooks.js'
-import { parseJourney as _parseJourney } from 'hafas-client/parse/journey.js'
-import moment from 'moment-timezone'
-import settings from '../settings.js'
-import isNull from 'lodash/isNull.js'
+import moment from "moment-timezone";
+import settings from "../settings.js";
+import { data as loyaltyCards } from "db-vendo-client/format/loyalty-cards.js";
+import { client } from "./client.js";
 
-const parseJourneyWithPrice = ({ parsed }, raw) => {
-	parsed.price = null
-	if (
-		raw.trfRes &&
-		Array.isArray(raw.trfRes.fareSetL) &&
-		raw.trfRes.fareSetL[0] &&
-		Array.isArray(raw.trfRes.fareSetL[0].fareL)
-	) {
-		const fare = raw.trfRes.fareSetL[0].fareL.filter(f => f.isBookable === true && f.isPartPrice === false)[0]
-		if (fare && fare.price.amount > 0) {
-			parsed.price = {
-				amount: fare.price.amount / 100,
-				currency: 'EUR',
-				hint: null,
-			}
+const pickCheapestTicketPrice = (tickets) => {
+	if (!Array.isArray(tickets) || tickets.length === 0) return null;
+	let cheapest = null;
+	for (const ticket of tickets) {
+		const priceObj = ticket?.priceObj;
+		if (!priceObj || priceObj.amount === undefined || priceObj.amount === null)
+			continue;
+		const amount = Number(priceObj.amount);
+		if (Number.isNaN(amount)) continue;
+		if (!cheapest || amount < cheapest.amount)
+			cheapest = { amount, currency: priceObj.currency };
+	}
+	if (!cheapest) return null;
+	return {
+		amount: cheapest.amount / 100,
+		currency: cheapest.currency || "EUR",
+	};
+};
+
+const normalizePrice = (journey) => {
+	if (journey?.price && journey.price.amount !== undefined) {
+		const amount = Number(journey.price.amount);
+		if (!Number.isNaN(amount)) {
+			return { amount, currency: journey.price.currency || "EUR" };
 		}
 	}
+	return pickCheapestTicketPrice(journey?.tickets);
+};
 
-	return parsed
-}
+const buildLoyaltyCard = (params) => {
+	const bc = params?.bcOriginal ?? params?.bc ?? 0;
+	if (!bc) return null;
+	const discount = bc === 4 || bc === 3 ? 50 : 25;
+	return {
+		type: loyaltyCards.BAHNCARD,
+		discount,
+		class: params.class === 1 ? 1 : 2,
+	};
+};
 
-const userAgent = 'bahn.guru'
-const client = createClient({
-	...dbProfileRaw,
-	parseJourney: parseHook(_parseJourney, parseJourneyWithPrice),
-}, userAgent)
-const profile = client.profile
+const isBusLeg = (leg) => {
+	const line = leg?.line;
+	const values = [line?.productName, line?.product, line?.mode];
+	return values.some(
+		(value) => typeof value === "string" && value.toLowerCase() === "bus",
+	);
+};
 
 const fetchJourneys = async (from, to, opt = {}) => {
-	from = profile.formatLocation(profile, from, 'from')
-	to = profile.formatLocation(profile, to, 'to')
-
-	if (('earlierThan' in opt) && ('laterThan' in opt)) {
-		throw new TypeError('opt.earlierThan and opt.laterThan are mutually exclusive.')
-	}
-	if (('departure' in opt) && ('arrival' in opt)) {
-		throw new TypeError('opt.departure and opt.arrival are mutually exclusive.')
-	}
-
-	opt = Object.assign({
-		bahncard: null,
-		class: 2,
-
-		stopovers: false, // return stations on the way?
-		transfers: -1, // maximum nr of transfers
-		transferTime: 0, // minimum time for a single transfer in minutes
-	}, opt)
-	if (opt.via) opt.via = profile.formatLocation(profile, opt.via, 'opt.via')
-
-	const when = new Date(opt.departure)
-	if (Number.isNaN(+when)) throw new TypeError('opt.departure is invalid')
-
-	const filters = [
-		profile.formatProductsFilter({ profile }, opt.products || {}),
-	]
-
-	const query = {
-		getPasslist: !!opt.stopovers,
-		maxChg: opt.transfers,
-		minChgTime: opt.transferTime,
-		depLocL: [from],
-		arrLocL: [to],
-		jnyFltrL: filters,
-		trfReq: {
-			cType: 'PK',
-			tvlrProf: [
-				{
-					type: opt.age || 'E',
-					...(opt.bahncard ? { redtnCard: opt.bahncard } : {}),
-				},
-			],
-			jnyCl: opt.class,
+	opt = Object.assign(
+		{
+			bahncard: null,
+			class: 2,
+			stopovers: false,
+			transfers: -1,
+			transferTime: 0,
 		},
+		opt,
+	);
+
+	const when = new Date(opt.departure);
+	if (Number.isNaN(+when)) throw new TypeError("opt.departure is invalid");
+
+	const loyaltyCard = opt.bahncard || null;
+
+	const age = opt.age === "Y" ? 20 : 30;
+
+	try {
+		const useBestprice =
+			process.env.BESTPRICE !== "0" &&
+			process.env.BESTPRICE !== "false";
+		const journeysResult = await client.journeys(from, to, {
+			departure: when,
+			results: 10,
+			transfers: opt.transfers === -1 ? undefined : opt.transfers,
+			transferTime: opt.transferTime || undefined,
+			firstClass: opt.class === 1,
+			age,
+			loyaltyCard,
+			bestprice: useBestprice,
+		});
+
+		if (!journeysResult || !journeysResult.journeys) return [];
+
+		const journeysWithPrices = await Promise.all(
+			journeysResult.journeys.map(async (journey) => {
+				try {
+					if (journey.price?.amount) {
+						return { ...journey, price: normalizePrice(journey) };
+					}
+					if (journey.refreshToken) {
+						const refreshed = await client.refreshJourney(
+							journey.refreshToken,
+							{ tickets: true },
+						);
+						const merged = { ...journey, ...refreshed.journey };
+						return { ...merged, price: normalizePrice(merged) };
+					}
+					return { ...journey, price: normalizePrice(journey) };
+				} catch (err) {
+					return { ...journey, price: normalizePrice(journey) };
+				}
+			}),
+		);
+
+		return journeysWithPrices;
+	} catch (err) {
+		console.error("Error fetching journeys:", err);
+		return [];
 	}
-
-	query.outDate = profile.formatDate(profile, when)
-	query.outTime = profile.formatTime(profile, when)
-
-	const { res, common } = await profile.request({ profile, opt }, userAgent, {
-		cfg: { polyEnc: 'GPA' },
-		meth: 'BestPriceSearch',
-		// todo
-		req: query,
-		// req: profile.transformJourneysQuery({ profile, opt }, query),
-	})
-	if (!Array.isArray(res.outConL)) return []
-
-	const ctx = { profile, opt, common, res }
-	const journeys = res.outConL
-		.map(j => profile.parseJourney(ctx, j))
-
-	return journeys
-}
+};
 
 const journeys = (params, day) => {
-	const dayTimestamp = +(moment.tz(day, settings.timezone).startOf('day'))
+	const allowPriceless =
+		process.env.ALLOW_PRICELESS === "true" ||
+		process.env.ALLOW_PRICELESS === "1";
+	const dayTimestamp = +moment.tz(day, settings.timezone).startOf("day");
 	return fetchJourneys(params.origin.id, params.destination.id, {
 		departure: moment(day).toDate(),
 		class: params.class,
-		bahncard: params.bc,
-		age: (params.age === 'Y') ? 'Y' : 'E',
+		bahncard: buildLoyaltyCard(params),
+		age: params.age === "Y" ? "Y" : "E",
 	})
-		.then(results =>
-			results.filter(j => {
-				const plannedDeparture = new Date(j.legs[0].plannedDeparture)
-				const plannedArrival = new Date(j.legs[j.legs.length - 1].plannedArrival)
-				const duration = +plannedArrival - (+plannedDeparture)
-				const changes = j.legs.length - 1
+		.then((results) => {
+			const hasPriced = results.some((j) => j.price?.amount);
+			return results.filter((j) => {
+				const plannedDeparture = new Date(j.legs[0].plannedDeparture);
+				const plannedArrival = new Date(
+					j.legs[j.legs.length - 1].plannedArrival,
+				);
+				const duration = +plannedArrival - +plannedDeparture;
+				const changes = j.legs.length - 1;
 				return (
 					(!params.duration || duration <= params.duration * 60 * 60 * 1000) &&
-					(!params.departureAfter || +plannedDeparture >= +params.departureAfter + dayTimestamp) &&
-					(!params.arrivalBefore || +plannedArrival <= +params.arrivalBefore + dayTimestamp) &&
-					(isNull(params.maxChanges) || params.maxChanges >= changes) &&
-					(j.legs.some(l => l.line && l.line.productName !== 'BUS')) &&
-					(!!j.price)
-				)
-			}),
-		)
-		.then(results => {
+					(!params.departureAfter ||
+						+plannedDeparture >= +params.departureAfter + dayTimestamp) &&
+					(!params.arrivalBefore ||
+						+plannedArrival <= +params.arrivalBefore + dayTimestamp) &&
+					(params.maxChanges == null || params.maxChanges >= changes) &&
+					j.legs.some((l) => l.line && !isBusLeg(l)) &&
+					(allowPriceless || !hasPriced || !!j.price?.amount)
+				);
+			});
+		})
+		.then((results) => {
 			for (const journey of results) {
 				for (const leg of journey.legs) {
-					leg.product = leg.line ? leg.line.productName : null
+					leg.product =
+						leg.line?.productName ||
+						leg.line?.product ||
+						leg.line?.name ||
+						leg.line?.mode ||
+						null;
 				}
 			}
-			return results
+			return results;
 		})
 		.catch((err) => {
-			console.error(err)
-			return []
-		})
-}
+			console.error(err);
+			return [];
+		});
+};
 
-export default journeys
+export default journeys;

@@ -1,6 +1,5 @@
 import moment from 'moment-timezone'
-// eslint-disable-next-line no-unused-vars
-import mdf from 'moment-duration-format'
+import 'moment-duration-format'
 import isNaN from 'lodash/isNaN.js'
 
 const parseTime = (time) => {
@@ -19,7 +18,6 @@ const parseTime = (time) => {
 }
 
 const parseParams = (params) => {
-	// defaults
 	const settings = {
 		class: 2,
 		bc: 0,
@@ -30,23 +28,17 @@ const parseParams = (params) => {
 		arrivalBefore: null,
 		maxChanges: null,
 	}
-	// class
 	if (+params.class === 1 || +params.class === 2) settings.class = +params.class
-	// BahnCard
 	if ([0, 2, 4].indexOf(+params.bc) !== -1) {
 		settings.bc = (settings.class === 2) ? +params.bc : (+params.bc === 0) ? 0 : (+params.bc - 1)
 		settings.bcOriginal = +params.bc
 	}
-	// age
 	if (params.age === 'Y') settings.age = 'Y'
-	// duration
 	if (+params.duration && +params.duration > 0 && +params.duration < 24) settings.duration = +params.duration
-	// departureAfter & arrivalBefore
 	settings.departureAfter = parseTime(params.departureAfter)
 	settings.arrivalBefore = parseTime(params.arrivalBefore)
 	if ((settings.departureAfter && settings.arrivalBefore) && +settings.arrivalBefore.format('m') < +settings.departureAfter.format('m')) settings.arrivalBefore = null
 
-	// maxChanges
 	const maxChanges = +params.maxChanges
 	if (params.maxChanges !== '' && Number.isInteger(maxChanges) && maxChanges >= 0) settings.maxChanges = maxChanges
 

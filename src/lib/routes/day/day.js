@@ -1,27 +1,33 @@
 import * as helpers from '../helpers.js'
 
-const formatResult = (result) => Object.assign(result, { formattedPrice: helpers.formatPrice(result.price.amount) })
+const formatResult = (result) => Object.assign(result, {
+	formattedPrice: (result.price && typeof result.price.amount === 'number')
+		? helpers.formatPrice(result.price.amount)
+		: null,
+})
 
 const markCheapest = (results) => {
 	if (!results) return null
-	// add handy short-hand attributes like "duration"
 	for (const journey of results) {
 		const plannedDeparture = new Date(journey.legs[0].plannedDeparture)
 		const plannedArrival = new Date(journey.legs[journey.legs.length - 1].plannedArrival)
 		const duration = +plannedArrival - (+plannedDeparture)
 		journey.duration = duration
 	}
-	// Find cheapest journey(s)
 	let cheapest = null
-	for (const journey of results) { if (journey.formattedPrice && (!cheapest || +journey.formattedPrice.euros < cheapest)) cheapest = +journey.formattedPrice.euros }
-	// Mark cheapest journey(s)
-	for (const journey of results) { if (journey.formattedPrice) journey.cheapest = (+journey.formattedPrice.euros === cheapest) }
+	for (const journey of results) {
+		if (journey.formattedPrice && (!cheapest || +journey.formattedPrice.euros < cheapest)) {
+			cheapest = +journey.formattedPrice.euros
+		}
+	}
+	for (const journey of results) {
+		if (journey.formattedPrice) journey.cheapest = (+journey.formattedPrice.euros === cheapest)
+	}
 	return results
 }
 
 const day = (api, params) => {
 	return api.journeys(params, params.date)
-		.then(results => results.filter(r => r.price.amount))
 		.then(results => markCheapest(results.map(formatResult)))
 		.catch(err => {
 			console.log(err)

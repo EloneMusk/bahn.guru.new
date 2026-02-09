@@ -20,10 +20,9 @@ const generate = (api) => {
 				h('h2', 'Impressum & Datenschutz'),
 				h('div', { class: 'section' }, [
 					h('p', [
-						h('a', { href: 'https://juliustens.eu' }, 'Julius Tens'),
-						', ',
-						h('a', { href: 'mailto:bahnguru@juliustens.eu' }, 'bahnguru@juliustens.eu'),
-						', Schlickweg 10, 14129 Berlin.',
+						'Kontakt: ',
+						h('a', { href: 'https://github.com/juliuste/bahn.guru' }, 'Repository'),
+						'.',
 					]),
 				]),
 				h('div', { class: 'section' }, [

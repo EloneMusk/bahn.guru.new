@@ -2,10 +2,14 @@ import { h } from 'hastscript'
 import { u } from 'unist-builder'
 import { toHtml } from 'hast-util-to-html'
 import jsBeautify from 'js-beautify'
-// eslint-disable-next-line n/no-deprecated-api
-import { resolve } from 'url'
 
 const useUmami = process.env.ANALYTICS === 'true'
+
+export const joinUrl = (base, path) => {
+	const baseClean = base.endsWith('/') ? base : `${base}/`
+	const pathClean = path.replace(/^\.?\//, '')
+	return baseClean + pathClean
+}
 
 export const formatPrice = price => {
 	price = price.toFixed(2).toString().split('.')
@@ -42,9 +46,9 @@ check https://umami.is/docs/faq`),
 			]
 			: []),
 	]
-	for (const style of api.settings.styles) { header.push(h('link', { rel: 'stylesheet', type: 'text/css', href: resolve('/assets/styles/', style) })) }
+	for (const style of api.settings.styles) { header.push(h('link', { rel: 'stylesheet', type: 'text/css', href: joinUrl('/assets/styles/', style) })) }
 
-	if (api.settings.icon) { header.push(h('link', { rel: 'icon', type: 'image/png', href: resolve('/assets/', api.settings.icon) })) }
+	if (api.settings.icon) { header.push(h('link', { rel: 'icon', type: 'image/png', href: joinUrl('/assets/', api.settings.icon) })) }
 
 	return header
 }

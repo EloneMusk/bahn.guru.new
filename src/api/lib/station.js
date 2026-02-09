@@ -1,19 +1,32 @@
-import createHafasClient from 'db-hafas'
-const { locations: stations } = createHafasClient('bahn.guru')
+import { client } from "./client.js";
 
-const station = (s) => {
-	// eslint-disable-next-line prefer-promise-reject-errors
-	if (!s) return Promise.reject(false)
-	return stations(s)
-		.then(
-			(data) => {
-				if (data.length > 0) return data[0]
-				return false
-			})
-		.catch(
-			// eslint-disable-next-line n/handle-callback-err
-			(error) => false,
-		)
-}
+const stations = async (s) => {
+	if (!s) return [];
+	try {
+		const results = await client.locations(s, {
+			results: 5,
+			stops: true,
+			addresses: false,
+			poi: false,
+		});
+		return results;
+	} catch (error) {
+		console.error(`Station search error for "${s}":`, error);
+		return [];
+	}
+};
 
-export default station
+const station = async (s) => {
+	if (!s) return false;
+	try {
+		const data = await stations(s);
+		if (data.length > 0) return data[0];
+		return false;
+	} catch (error) {
+		console.error(`Station error for "${s}":`, error);
+		return false;
+	}
+};
+
+export { station, stations };
+export default station;
