@@ -1,5 +1,10 @@
 {
 	"version": 2,
 	"outputDirectory": "public",
-	"rewrites": [{ "source": "/(.*)", "destination": "/api/index" }]
+	"rewrites": [{ "source": "/(.*)", "destination": "/api/index" }],
+	"functions": {
+		"api/index.js": {
+			"includeFiles": "../assets/**"
+		}
+	}
 }
