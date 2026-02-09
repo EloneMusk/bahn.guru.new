@@ -61,8 +61,11 @@ const markCheapest = (formattedJourneyPerDay) => {
 	return formattedJourneyPerDay;
 };
 
-const generateCalendar = (weeks) => {
-	let date = moment().tz("Europe/Berlin");
+const generateCalendar = (weeks, startDate = null) => {
+	// Use startDate if provided, otherwise use current date
+	let date = startDate
+		? moment(startDate).tz("Europe/Berlin")
+		: moment().tz("Europe/Berlin");
 	let emptyDates = 0;
 	while (+date.format("E") !== 1) {
 		date.subtract(1, "days");
@@ -103,7 +106,7 @@ const fillCalendar = (cal, formattedJourneyPerDay) => {
 
 const calendar = (api, params, onProgress) => {
 	const q = new Queue({ concurrency: 2, interval: 1500, intervalCap: 2 });
-	const cal = generateCalendar(params.weeks);
+	const cal = generateCalendar(params.weeks, params.startDate);
 	const total = cal.filter((day) => !day.past).length;
 	let completed = 0;
 	if (onProgress) {
@@ -118,25 +121,29 @@ const calendar = (api, params, onProgress) => {
 	for (const day of cal) {
 		if (!day.past) {
 			requests.push(
-				q.add(() =>
-					retry(
-						() => timeout(api.journeys(params, day.date.raw), timeoutTime),
-						{ retries: 3 },
+				q
+					.add(() =>
+						retry(
+							() => timeout(api.journeys(params, day.date.raw), timeoutTime),
+							{ retries: 3 },
+						).catch((err) => []),
 					)
-						.catch((err) => []),
-				).then((result) => {
-					completed++;
-					if (onProgress) {
-						const percent = total > 0 ? Math.min(99, Math.round((completed / total) * 100)) : 100;
-						onProgress({
-							completed,
-							total,
-							percent,
-							message: `Lade Verbindungen (${completed}/${total})...`,
-						});
-					}
-					return result;
-				}),
+					.then((result) => {
+						completed++;
+						if (onProgress) {
+							const percent =
+								total > 0
+									? Math.min(99, Math.round((completed / total) * 100))
+									: 100;
+							onProgress({
+								completed,
+								total,
+								percent,
+								message: `Lade Verbindungen (${completed}/${total})...`,
+							});
+						}
+						return result;
+					}),
 			);
 		}
 	}

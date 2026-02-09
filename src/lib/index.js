@@ -26,7 +26,10 @@ const createServer = () => {
 	);
 
 	express.use(
-		apiCache.middleware("15 minutes", (req, res) => !req.path.startsWith("/progress/")),
+		apiCache.middleware(
+			"15 minutes",
+			(req, res) => !req.path.startsWith("/progress/"),
+		),
 	);
 
 	express.use(
@@ -45,6 +48,7 @@ const createServer = () => {
 		startRoute,
 		dayRoute,
 		calendarRoute,
+		calendarJsonRoute,
 		impressumRoute,
 		faqRoute,
 		stationsRoute,
@@ -54,6 +58,7 @@ const createServer = () => {
 	express.get("/start", startRoute);
 	express.get("/day", dayRoute, startRoute);
 	express.get("/calendar", calendarRoute, startRoute);
+	express.get("/api/calendar", calendarJsonRoute);
 	express.get("/impressum", impressumRoute);
 	express.get("/faq", faqRoute);
 	express.get("/stations", stationsRoute);
