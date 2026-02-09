@@ -1,76 +1,96 @@
-.sey-container{
-    visibility: hidden;
-}
-.sey-show{
-    visibility: visible !important;
-}
-.sey-hide{
-    display: none;
-}
-
-.sey-list{
-    position: absolute;
-    top: 1.45em !important;
-    left: -.08em !important;
-    right: -.075em !important;
-    background: var(--surface);
-    list-style: none;
-    text-align: left;
-    color: var(--text);
-    overflow: auto;
-    padding: 0;
-    cursor: default;
-    font-size: 100%;
-    border: 3px solid var(--border);
-    border-top: none;
-    z-index: 2;
-    box-shadow: var(--shadow-sm);
-    font-family: "Space Grotesk", "IBM Plex Sans", Helvetica, sans-serif;
-    letter-spacing: normal;
-    text-transform: none;
-    writing-mode: horizontal-tb;
-    text-orientation: mixed;
-    transform: none;
+/* Autocomplete Dropdown - Fractal Style */
+.sey-container {
+	display: none;
+	position: absolute;
+	z-index: 1000;
+	background: var(--surface);
+	border: 2px solid var(--border);
+	border-radius: var(--radius);
+	box-shadow: var(--shadow-md);
+	max-height: 300px;
+	min-width: 200px;
+	overflow-y: auto;
+	margin-top: 2px;
+	/* Override horsey's inline styles to position below parent */
+	left: 0 !important;
+	top: 100% !important;
+	width: 100%;
 }
 
-.sey-item{
-    padding: .45em .5em .35em .5em;
-    white-space: nowrap;
-    overflow: hidden;
-    text-overflow: ellipsis;
-    text-transform: none;
-    letter-spacing: normal;
+.sey-show {
+	display: block !important;
+}
+
+.sey-hide {
+	display: none !important;
+}
+
+.sey-list {
+	position: static;
+	background: var(--surface);
+	list-style: none;
+	text-align: left;
+	color: var(--text);
+	overflow: visible;
+	padding: 4px;
+	margin: 0;
+	cursor: default;
+	font-size: 100%;
+	border: none;
+	z-index: 2;
+	box-shadow: none;
+	font-family: var(--font-family);
+	letter-spacing: normal;
+	text-transform: none;
+}
+
+.sey-item {
+	display: block;
+	padding: 10px 14px;
+	white-space: nowrap;
+	overflow: hidden;
+	text-overflow: ellipsis;
+	text-transform: none;
+	letter-spacing: normal;
+	border-radius: 6px;
+	cursor: pointer;
+	transition: background 0.15s ease;
+	color: var(--text);
+}
+
+.sey-item:hover {
+	background: var(--accent-3);
 }
 
 .sey-item span {
-    padding: 0;
-    margin: 0;
-    background: none;
-    letter-spacing: normal;
-    text-transform: none;
-    border: 0 !important;
-    box-shadow: none !important;
-    max-width: none !important;
-    min-width: 0 !important;
+	padding: 0;
+	margin: 0;
+	background: none;
+	letter-spacing: normal;
+	text-transform: none;
+	border: 0 !important;
+	box-shadow: none !important;
+	max-width: none !important;
+	min-width: 0 !important;
 }
 
-.sey-char{
-    display: inline !important;
-    border: 0 !important;
-    box-shadow: none !important;
-    background: transparent !important;
+.sey-char {
+	display: inline !important;
+	border: 0 !important;
+	box-shadow: none !important;
+	background: transparent !important;
 }
 
-.sey-item *{
-    writing-mode: horizontal-tb;
-    text-orientation: mixed;
-    transform: none;
-    text-shadow: none;
-    letter-spacing: 0 !important;
-    font-family: "Space Grotesk", "IBM Plex Sans", Helvetica, sans-serif !important;
+.sey-item * {
+	writing-mode: horizontal-tb;
+	text-orientation: mixed;
+	transform: none;
+	text-shadow: none;
+	letter-spacing: 0 !important;
+	font-family: var(--font-family) !important;
 }
 
-.sey-selected{
-    background: var(--accent);
-    color: var(--on-accent);
+.sey-selected {
+	background: var(--accent-3);
+	font-weight: 600;
 }
