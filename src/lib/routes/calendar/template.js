@@ -127,6 +127,9 @@ const dayURL = (api, data, day) => {
 const moreLink = (api, data) => {
 	if (!data) return null
 	const weeks = (data.input.weeks + 2 <= 12) ? data.input.weeks + 2 : 12
+	if (data.hasMore === false) {
+		return [h('span', { id: 'later', class: 'disabled', 'aria-disabled': 'true' }, 'Mehr anzeigen...')]
+	}
 	return [h('a', {
 		id: 'later',
 		href: `./calendar?${helpers.withOptionsQuery(api, data.input, { weeks, submit: 'Y' })}#later`,

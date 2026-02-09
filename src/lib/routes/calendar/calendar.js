@@ -101,9 +101,19 @@ const fillCalendar = (cal, formattedJourneyPerDay) => {
 	return chunk(cal, 7);
 };
 
-const calendar = (api, params) => {
+const calendar = (api, params, onProgress) => {
 	const q = new Queue({ concurrency: 2, interval: 1500, intervalCap: 2 });
 	const cal = generateCalendar(params.weeks);
+	const total = cal.filter((day) => !day.past).length;
+	let completed = 0;
+	if (onProgress) {
+		onProgress({
+			completed,
+			total,
+			percent: total > 0 ? 0 : 100,
+			message: "Lade Kalenderdaten...",
+		});
+	}
 	const requests = [];
 	for (const day of cal) {
 		if (!day.past) {
@@ -114,7 +124,19 @@ const calendar = (api, params) => {
 						{ retries: 3 },
 					)
 						.catch((err) => []),
-				),
+				).then((result) => {
+					completed++;
+					if (onProgress) {
+						const percent = total > 0 ? Math.min(99, Math.round((completed / total) * 100)) : 100;
+						onProgress({
+							completed,
+							total,
+							percent,
+							message: `Lade Verbindungen (${completed}/${total})...`,
+						});
+					}
+					return result;
+				}),
 			);
 		}
 	}

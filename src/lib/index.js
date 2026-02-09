@@ -25,9 +25,18 @@ const createServer = () => {
 		}),
 	);
 
-	express.use(apiCache.middleware("15 minutes"));
+	express.use(
+		apiCache.middleware("15 minutes", (req, res) => !req.path.startsWith("/progress/")),
+	);
 
-	express.use(compression());
+	express.use(
+		compression({
+			filter: (req, res) => {
+				if (req.path.startsWith("/progress/")) return false;
+				return compression.filter(req, res);
+			},
+		}),
+	);
 
 	express.use("/assets", createExpress.static("assets"));
 
@@ -39,6 +48,7 @@ const createServer = () => {
 		impressumRoute,
 		faqRoute,
 		stationsRoute,
+		progressRoute,
 	} = createRoutes(api);
 	express.get("/", greetingRoute, startRoute);
 	express.get("/start", startRoute);
@@ -47,6 +57,7 @@ const createServer = () => {
 	express.get("/impressum", impressumRoute);
 	express.get("/faq", faqRoute);
 	express.get("/stations", stationsRoute);
+	express.get("/progress/:id", progressRoute);
 
 	// Health check endpoint for Docker/Kubernetes
 	express.get("/health", (req, res) => {

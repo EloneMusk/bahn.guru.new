@@ -202,6 +202,13 @@ a{
     animation: load-swipe 1.1s ease-in-out infinite;
 }
 
+.loading-bar.is-progress span{
+    width: 0;
+    animation: none;
+    transform: none;
+    transition: width .2s linear;
+}
+
 @keyframes load-swipe{
     0%{ transform: translateX(-10%); }
     50%{ transform: translateX(110%); }

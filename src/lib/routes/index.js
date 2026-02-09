@@ -5,6 +5,7 @@ import createCalendarRoute from "./calendar/index.js";
 import createImpressumRoute from "./impressum/index.js";
 import createFaqRoute from "./faq/index.js";
 import createStationsRoute from "./stations/index.js";
+import createProgressRoute from "./progress/index.js";
 
 const createRoutes = (api) => {
 	const greetingRoute = createGreetingRoute(api);
@@ -14,6 +15,7 @@ const createRoutes = (api) => {
 	const impressumRoute = createImpressumRoute(api);
 	const faqRoute = createFaqRoute(api);
 	const stationsRoute = createStationsRoute(api);
+	const progressRoute = createProgressRoute();
 	return {
 		greetingRoute,
 		startRoute,
@@ -22,6 +24,7 @@ const createRoutes = (api) => {
 		impressumRoute,
 		faqRoute,
 		stationsRoute,
+		progressRoute,
 	};
 };
 
