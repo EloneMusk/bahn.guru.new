@@ -56,7 +56,7 @@
 
 .month-calendar {
 	width: 100%;
-	font-size: 100%;
+	font-size: 125%; /* Scale entire calendar by 25% */
 	border-collapse: collapse;
 	table-layout: fixed;
 }
@@ -95,8 +95,8 @@
 
 .month-calendar td {
 	position: relative;
-	min-height: clamp(4.43rem, 5.64vw, 5.98rem);
-	height: clamp(4.43rem, 5.64vw, 5.98rem);
+	min-height: clamp(4.1rem, 5.4vw, 5.8rem); /* Reduced by 25% */
+	height: clamp(4.1rem, 5.4vw, 5.8rem);
 	border: 2px solid transparent;
 	overflow: hidden;
 	vertical-align: top;
@@ -108,8 +108,8 @@
 }
 
 .month-calendar td .price {
-	padding-top: 0.21rem;
-	font-size: clamp(1.06rem, 1.47vw, 1.7rem);
+	padding-top: 0; /* Remove padding as we center via flex */
+	font-size: clamp(1.2rem, 1.8vw, 2rem); /* Increased font size */
 	line-height: 0.94;
 	font-weight: 600;
 	color: var(--accent);
@@ -127,7 +127,7 @@
 	display: flex;
 	flex-direction: column;
 	align-items: center;
-	justify-content: center;
+	justify-content: center; /* Center price vertically */
 	text-decoration: none;
 	position: absolute;
 	inset: 0;
@@ -138,6 +138,7 @@
 	box-sizing: border-box;
 }
 
+/* ... existing hover styles ... */
 .month-calendar td:not(.empty):not(.outside):not(.cheapest):hover {
 	border-color: var(--border);
 	box-shadow: inset 0 0 0 3px var(--accent);
@@ -153,7 +154,6 @@
 	transform: translate(1px, 1px);
 	box-shadow: var(--shadow-sm);
 }
-
 .month-calendar td.cheapest {
 	background: var(--accent);
 }
@@ -199,6 +199,7 @@
 	flex-direction: row;
 	align-items: center;
 	justify-content: center;
+	/* No flex-grow needed since we use justify-content: center on parent */
 }
 
 .month-calendar .inlineDuration {
@@ -220,7 +221,10 @@
 	gap: 0.35em;
 	color: var(--muted);
 	font-size: clamp(0.83rem, 0.92vw, 1.13rem);
-	margin-top: 0.09rem;
+	position: absolute; /* Fixed at bottom */
+	bottom: 0.25rem;
+	left: 50%;
+	transform: translateX(-50%);
 	white-space: nowrap;
 }
 
@@ -261,6 +265,19 @@
 	top: 50%;
 	transform-origin: left center;
 	transform: translateY(-50%);
+}
+
+/* Dark mode: Orange clock for better visibility */
+@media (prefers-color-scheme: dark) {
+	.month-calendar .nb-clock {
+		border-color: #ff9500;
+		background: #ff9500 !important;
+		box-shadow: 1px 1px 0 rgba(0, 0, 0, 0.3);
+	}
+	.month-calendar .nb-clock::before,
+	.month-calendar .nb-clock::after {
+		background: #1a1a1a;
+	}
 }
 
 #more {
@@ -337,6 +354,11 @@
 
 	.month-calendar .duration {
 		display: inline-flex !important;
+	}
+
+	.month-calendar .priceGroup {
+		margin-top: auto;
+		margin-bottom: auto;
 	}
 
 	#more {
