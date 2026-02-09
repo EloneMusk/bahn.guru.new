@@ -359,3 +359,97 @@
 		font-size: 90% !important;
 	}
 }
+
+/* Mobile optimizations: List view for vertical screens */
+@media (max-width: 599px) {
+	.month-calendar thead {
+		display: none;
+	}
+
+	.month-calendar tbody tr {
+		display: flex;
+		flex-direction: column;
+		border-bottom: none;
+	}
+
+	/* Hide empty cells in list view (optional, but good for spacing) */
+	.month-calendar td.empty,
+	.month-calendar td.outside {
+		display: none;
+	}
+
+	.month-calendar td {
+		display: block;
+		width: 100%;
+		height: auto !important;
+		min-height: auto !important;
+		border: none;
+		border-bottom: 1px solid var(--border);
+		padding: 0;
+		overflow: visible;
+	}
+
+	.month-calendar a.cell {
+		position: relative;
+		width: 100%;
+		height: auto;
+		display: flex;
+		flex-direction: row;
+		justify-content: space-between;
+		align-items: center;
+		padding: 0.8rem 1rem;
+		inset: auto;
+	}
+
+	/* Layout adjustments for list items */
+	.month-calendar .date {
+		position: static;
+		font-size: 1.2rem;
+		font-weight: bold;
+		flex: 0 0 auto;
+		width: 40px; /* Aligned width for dates */
+	}
+
+	.month-calendar .priceGroup {
+		position: static;
+		flex: 1;
+		justify-content: flex-end; /* Push price right */
+		margin-right: 1rem;
+	}
+
+	.month-calendar td .price {
+		font-size: 1.2rem;
+	}
+
+	.month-calendar td .price .priceLong {
+		display: inline !important; /* Show full price on mobile list */
+	}
+	.month-calendar td .price .priceShort {
+		display: none;
+	}
+
+	.month-calendar td .duration {
+		display: flex !important; /* Always show duration */
+		position: static;
+		font-size: 0.9rem;
+		color: var(--muted);
+	}
+
+	.month-calendar .inlineDuration {
+		display: none !important; /* Hide inline duration, use main duration */
+	}
+
+	/* Highlight cheapest clearly */
+	.month-calendar td.cheapest {
+		background: var(
+			--surface
+		); /* Keep surface background but highlight text/border */
+		border-left: 5px solid var(--accent);
+	}
+	.month-calendar td.cheapest a.cell {
+		background: var(--accent-3); /* Light highlight */
+	}
+	.month-calendar td.cheapest .price {
+		color: var(--accent);
+	}
+}
