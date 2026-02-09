@@ -48,6 +48,11 @@ const createServer = () => {
 	express.get("/faq", faqRoute);
 	express.get("/stations", stationsRoute);
 
+	// Health check endpoint for Docker/Kubernetes
+	express.get("/health", (req, res) => {
+		res.json({ status: "ok", timestamp: new Date().toISOString() });
+	});
+
 	return server;
 };
 

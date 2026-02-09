@@ -56,6 +56,10 @@ const retryProfile = withRetrying(profile, {
 	retries: 2,
 	minTimeout: 250,
 	factor: 2,
+	retryIf: (err) => {
+		const status = err?.statusCode || err?.response?.statusCode;
+		return status === 429 || (status >= 500 && status < 600);
+	},
 });
 
 const client = createClient(retryProfile, userAgent);
