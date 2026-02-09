@@ -1,11 +1,5 @@
 import createParseParams from "../params.js";
 import calendar from "./calendar.js";
-import {
-	initProgress,
-	updateProgress,
-	finishProgress,
-	failProgress,
-} from "../../progress.js";
 import moment from "moment-timezone";
 
 const getLastDate = (calendarResults) => {
@@ -45,81 +39,81 @@ const createCalendarJsonRoute = (api) => {
 	const parseParams = createParseParams(api);
 	return async (req, res) => {
 		try {
-			const progressId =
-				typeof req.query.pid === "string" ? req.query.pid : null;
-			if (progressId)
-				initProgress(progressId, { percent: 0, message: "Starte Suche..." });
-			try {
-				const { params, error } = await parseParams(req.query);
-				if (error) {
-					if (progressId)
-						failProgress(progressId, {
-							percent: 100,
-							message: "Ungueltige Eingabe.",
-						});
-					return res.status(400).json({ error });
-				}
+			res.setHeader("Content-Type", "application/x-ndjson; charset=utf-8");
+			res.setHeader("Cache-Control", "no-cache");
+			res.setHeader("Connection", "keep-alive");
+			res.flushHeaders?.();
 
-				params.weeks = 4;
+			const writeLine = (data) => {
+				res.write(JSON.stringify(data) + "\n");
+				if (res.flush) res.flush();
+			};
 
-				if (
-					req.query.startDate &&
-					moment(req.query.startDate, "YYYY-MM-DD", true).isValid()
-				) {
-					params.startDate = req.query.startDate;
-				}
-
-				const calendarResults = await calendar(
-					api,
-					params,
-					progressId ? (state) => updateProgress(progressId, state) : null,
-				);
-
-				if (!calendarResults) {
-					if (progressId)
-						finishProgress(progressId, {
-							percent: 100,
-							message: "Keine Verbindungen gefunden.",
-						});
-					return res.json({ months: [], hasMore: false, lastDate: null });
-				}
-
-				const hasMore = hasMoreJourneyData(calendarResults, params.weeks);
-				const lastDate = getLastDate(calendarResults);
-
-				// Group by month for frontend
-				const days = calendarResults.flat();
-				const months = [];
-				for (const day of days) {
-					if (!day?.date?.raw) continue;
-					const key = moment(day.date.raw).format("YYYY-MM");
-					let month = months.find((m) => m.key === key);
-					if (!month) {
-						month = {
-							key,
-							label: moment(day.date.raw).locale("de").format("MMMM YYYY"),
-							days: [],
-						};
-						months.push(month);
-					}
-					month.days.push(formatDayForJson(day));
-				}
-
-				if (progressId)
-					finishProgress(progressId, { percent: 100, message: "Fertig." });
-				res.json({ months, hasMore, lastDate });
-			} catch (error) {
-				console.error("[json.js] Error processing request:", error);
-				if (progressId)
-					failProgress(progressId, {
-						percent: 100,
-						message: "Fehler bei der Verarbeitung.",
-					});
-				res.status(500).json({ error: "Internal Server Error" });
+			const { params, error } = await parseParams(req.query);
+			if (error) {
+				writeLine({ type: "error", message: "Ungültige Eingabe." });
+				res.end();
+				return;
 			}
+
+			params.weeks = 4;
+
+			if (
+				req.query.startDate &&
+				moment(req.query.startDate, "YYYY-MM-DD", true).isValid()
+			) {
+				params.startDate = req.query.startDate;
+			}
+
+			const calendarResults = await calendar(api, params, (state) => {
+				writeLine({
+					type: "progress",
+					percent: state.percent,
+					message: state.message || "Lade...",
+				});
+			});
+
+			if (!calendarResults) {
+				writeLine({
+					type: "result",
+					data: { months: [], hasMore: false, lastDate: null },
+				});
+				res.end();
+				return;
+			}
+
+			const hasMore = hasMoreJourneyData(calendarResults, params.weeks);
+			const lastDate = getLastDate(calendarResults);
+
+			// Group by month for frontend
+			const days = calendarResults.flat();
+			const months = [];
+			for (const day of days) {
+				if (!day?.date?.raw) continue;
+				const key = moment(day.date.raw).format("YYYY-MM");
+				let month = months.find((m) => m.key === key);
+				if (!month) {
+					month = {
+						key,
+						label: moment(day.date.raw).locale("de").format("MMMM YYYY"),
+						days: [],
+					};
+					months.push(month);
+				}
+				month.days.push(formatDayForJson(day));
+			}
+
+			writeLine({
+				type: "result",
+				data: { months, hasMore, lastDate },
+			});
+			res.end();
 		} catch (fatalError) {
 			console.error("[json.js] Fatal error in route handler:", fatalError);
-			res.status(500).json({ error: "Fatal Server Error" });
+			res.write(
+				JSON.stringify({ type: "error", message: "Server Error" }) + "\n",
+			);
+			res.end();
 		}
 	};
 };

@@ -288,33 +288,6 @@ const initCalendarAppend = () => {
 		if (overlay) overlay.classList.remove("is-visible");
 	};
 
-	const createProgressId = () =>
-		"p" + Date.now().toString(36) + Math.random().toString(36).slice(2, 8);
-
-	let progressSource = null;
-
-	const bindProgress = (progressId) => {
-		if (progressSource) progressSource.close();
-		progressSource = new EventSource(
-			"/progress/" + encodeURIComponent(progressId),
-		);
-		progressSource.addEventListener("progress", (event) => {
-			try {
-				const data = JSON.parse(event.data || "{}");
-				setProgress(data.percent, data.message || "Lade Verbindungen...");
-			} catch (e) {}
-		});
-		progressSource.addEventListener("done", () => {
-			setProgress(100, "Fertig...");
-			if (progressSource) progressSource.close();
-			progressSource = null;
-		});
-		progressSource.addEventListener("error", () => {
-			if (progressSource) progressSource.close();
-			progressSource = null;
-		});
-	};
-
 	const loadMore = async () => {
 		if (isLoading) return;
 		isLoading = true;
@@ -325,14 +298,12 @@ const initCalendarAppend = () => {
 			return;
 		}
 
-		// Add progress ID for SSE tracking
-		const progressId = createProgressId();
+		// Clean up previous params
 		const url = new URL(apiUrl, window.location.href);
-		url.searchParams.set("pid", progressId);
+		url.searchParams.delete("pid");
 		apiUrl = url.pathname + url.search;
 
 		showLoading("Lade weitere Tage...");
-		bindProgress(progressId);
 		moreButton.textContent = "Lade...";
 		moreButton.disabled = true;
 
@@ -340,7 +311,47 @@ const initCalendarAppend = () => {
 			const response = await fetch(apiUrl);
 			if (!response.ok) throw new Error("Network error");
 
-			const data = await response.json();
+			const reader = response.body.getReader();
+			const decoder = new TextDecoder("utf-8");
+			let buffer = "";
+
+			let data = null;
+
+			while (true) {
+				const { done, value } = await reader.read();
+				if (done) break;
+				buffer += decoder.decode(value, { stream: true });
+				const lines = buffer.split("\n");
+				// Keep the last partial line in the buffer
+				buffer = lines.pop();
+
+				for (const line of lines) {
+					if (!line.trim()) continue;
+					try {
+						const msg = JSON.parse(line);
+						if (msg.type === "progress") {
+							setProgress(msg.percent, msg.message);
+						} else if (msg.type === "result") {
+							data = msg.data;
+						} else if (msg.type === "error") {
+							throw new Error(msg.message);
+						}
+					} catch (e) {
+						// Ignorier JSON-Parse-Fehler für unvollständige Chunks
+						if (e.message !== "Unexpected end of JSON input") console.error(e);
+					}
+				}
+			}
+
+			// End of stream, check buffer
+			if (buffer.trim()) {
+				try {
+					const msg = JSON.parse(buffer);
+					if (msg.type === "result") data = msg.data;
+				} catch (e) {}
+			}
+
+			if (!data) throw new Error("No data received");
 
 			let hasNewJourneys = false;
 
