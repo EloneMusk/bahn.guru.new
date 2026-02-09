@@ -1,4 +1,5 @@
 {
 	"version": 2,
-	"rewrites": [{ "source": "/(.*)", "destination": "/api/index.js" }]
+	"outputDirectory": "public",
+	"rewrites": [{ "source": "/(.*)", "destination": "/api/index" }]
 }
