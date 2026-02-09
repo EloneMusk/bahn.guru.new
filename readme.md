@@ -7,6 +7,7 @@
 <p align="center">
   <img src="https://github.com/EloneMusk/bahn.guru.new/blob/main/assets/screenshot.png" alt="Preview">
 </p>
+
 ## See also
 
 - [travel-price-map](https://github.com/juliuste/travel-price-map/) – Map of low-cost tickets ("Sparpreise") for several european cities
