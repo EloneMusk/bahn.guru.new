@@ -30,7 +30,7 @@
 		"Benjamin Altpeter"
 	],
 	"scripts": {
-		"build": "mkdir -p assets/scripts/bundle && browserify 'assets/scripts/bahn.js' > 'assets/scripts/bundle/bahn.js'",
+		"build": "mkdir -p public/assets && cp -r assets/* public/assets/ && mkdir -p public/assets/scripts/bundle && browserify 'assets/scripts/bahn.js' > 'public/assets/scripts/bundle/bahn.js'",
 		"check-deps": "depcheck . --ignore-dirs=bundle",
 		"fix": "npm run lint -- --fix",
 		"lint": "eslint src",
