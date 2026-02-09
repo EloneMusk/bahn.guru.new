@@ -33,7 +33,7 @@ const createTemplate =
 	({ params, error }) => {
 		if (!params) params = {};
 		const body = [
-			h("form", { id: "page", action: "./calendar", method: "GET" }, [
+			h("form", { id: "page", action: "./calendar", method: "GET", "data-loading-message": "Suche Verbindungen..." }, [
 				h("div#header", [h("h1", "Preiskalender")]),
 				errorBox(error),
 				h("div#form", [

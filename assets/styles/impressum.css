@@ -3,12 +3,18 @@
     max-width: 90%;
 }
 
+#footer{
+    min-width: 90%;
+    max-width: 90%;
+}
+
 #page h2{
     line-height: 120%;
     font-size: 140%;
     margin-top: .2rem;
     margin-bottom: .6rem;
     text-align: center;
+    text-transform: uppercase;
 }
 
 .section{
@@ -16,20 +22,20 @@
     text-align: center;
     margin: .5em 0;
     max-width: 900px;
+    padding: .8rem;
+    border: 3px solid var(--border);
+    box-shadow: var(--shadow-sm);
+    background: var(--surface);
 }
 
 .section p{
-    line-height: 120%;
+    line-height: 130%;
     font-size: 90%;
 }
 
 .section a{
-    text-decoration: none;
-    color: #077;
-}
-
-.section a:hover{
     text-decoration: underline;
+    color: var(--text);
 }
 
 .section:last-of-type{

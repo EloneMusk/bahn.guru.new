@@ -3,10 +3,16 @@
     max-width: 90%;
 }
 
+#footer{
+    min-width: 90%;
+    max-width: 90%;
+}
+
 #page h2{
     line-height: 120%;
     font-size: 140%;
     margin-top: .2rem;
+    text-transform: uppercase;
 }
 
 .question{
@@ -14,27 +20,27 @@
     text-align: left;
     margin: .8em 0;
     max-width: 900px;
+    padding: .8rem;
+    border: 3px solid var(--border);
+    box-shadow: var(--shadow-sm);
+    background: var(--surface);
 }
 
 .question h3{
     font-size: 110%;
     line-height: 120%;
     margin-bottom: .2em;
-    color: #077;
+    color: var(--accent);
 }
 
 .question p{
-    line-height: 120%;
-    font-size: 90%;
+    line-height: 130%;
+    font-size: 92%;
 }
 
 .question a{
-    text-decoration: none;
-    color: #077;
-}
-
-.question a:hover{
     text-decoration: underline;
+    color: var(--text);
 }
 
 .question:last-of-type{

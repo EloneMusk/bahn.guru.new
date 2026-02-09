@@ -1,19 +1,26 @@
-FROM node:18-alpine
-RUN npm i -g pnpm@7
+FROM node:20-alpine AS build
 
 WORKDIR /app-src
-COPY assets ./assets
 
-COPY package.json pnpm-lock.yaml ./
-RUN pnpm install
+RUN corepack enable && corepack prepare pnpm@9.15.4 --activate
+
+COPY package.json pnpm-lock.yaml .npmrc ./
+RUN pnpm install --frozen-lockfile=false
 
 COPY src ./src
-RUN pnpm run build
+COPY assets ./assets
+RUN pnpm run build && pnpm prune --prod
 
-USER node
+FROM node:20-alpine AS runtime
+
+WORKDIR /app-src
+
+COPY --from=build /app-src/package.json ./package.json
+COPY --from=build /app-src/src ./src
+COPY --from=build /app-src/assets ./assets
+COPY --from=build /app-src/node_modules ./node_modules
 
 ENV PORT=3000
-ENV API="bahn"
 ENV DB_PROFILE=db
 ENV DB_USER_AGENT=bahn.guru-v2
 ENV BESTPRICE=1
@@ -21,4 +28,8 @@ ENV ALLOW_PRICELESS=0
 ENV ANALYTICS=false
 ENV ANALYTICS_ID=
 
-CMD ["pnpm", "run", "start"]
+EXPOSE 3000
+
+USER node
+
+CMD ["node", "src/index.js"]

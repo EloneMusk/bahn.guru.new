@@ -24,98 +24,114 @@ const generateSubTitleRoute = (data) => {
 
 const generateSubTitleOptions = (api, data) => {
 	const result = api.options.text(data.input)
-	const changeLink = h('a', { href: './start?origin=' + data.input.origin.name + '&destination=' + data.input.destination.name + '&' + (api.options.url(data.input).join('&')), id: 'change' }, 'Anfrage ändern...')
+	const changeLink = h('a', {
+		href: './start?' + helpers.withOptionsQuery(api, data.input),
+		id: 'change',
+		'data-loading-message': 'Zur Eingabe...',
+	}, 'Anfrage ändern...')
 	if (result.length) {
 		result.push('. ')
 	}
 	return [h('span', result), changeLink]
 }
 
+const weekdays = ['Mo', 'Di', 'Mi', 'Do', 'Fr', 'Sa', 'So']
+
+const durationContent = (duration) => ([
+	h('span.nb-clock', { 'aria-hidden': 'true' }),
+	h('span.durationText', duration),
+])
+
+const dayCell = (api, data, day) => {
+	if (!day) return h('td', { class: 'outside' })
+	const date = [moment(day.date.raw).format('D')]
+	if (day.past || !day.hasJourneys || !day.duration) {
+		return h('td', { class: 'empty' }, [
+			h('span.date', date),
+			h('div.priceGroup', [h('span.price', '–')]),
+			h('span.duration', '\u200D'),
+		])
+	}
+	return h('td', { class: day.cheapest ? 'cheapest' : '' }, [
+		h('a', { class: 'cell', href: dayURL(api, data, day), 'data-loading-message': 'Lade Tagesansicht...' }, [
+			h('span.date', date),
+			h('div.priceGroup', [
+				h('span.price', [
+					day.price
+						? h('span.priceLong', [day.price.euros, h('sup', day.price.cents)])
+						: h('span.priceLong', '–'),
+					day.price
+						? h('span.priceShort', Math.round(+day.price.euros + (+day.price.cents / 100)) + '€')
+						: h('span.priceShort', '–'),
+				]),
+				h('span.inlineDuration', durationContent(day.duration)),
+			]),
+			h('span.duration', durationContent(day.duration)),
+		]),
+	])
+}
+
+const monthWeeks = (days) => {
+	const cells = []
+	const startOffset = moment(days[0].date.raw).isoWeekday() - 1
+	for (let i = 0; i < startOffset; i++) cells.push(null)
+	for (const day of days) cells.push(day)
+	const endOffset = (7 - (cells.length % 7)) % 7
+	for (let i = 0; i < endOffset; i++) cells.push(null)
+
+	const weeks = []
+	for (let i = 0; i < cells.length; i += 7) {
+		weeks.push(cells.slice(i, i + 7))
+	}
+	return weeks
+}
+
 const calendar = (api, data) => {
 	if (!data) return h('span')
-	const cal = data.output
-	const weeks = []
-	let counter = 0
-	for (const week of cal) {
-		const days = []
-		for (const day of week) {
-			const splitDate = day.date.formatted.split(' ')
-			const date = [splitDate[0]]
-			const dayClass = (date[0] === '1') ? ' new-month' : ''
-			if (splitDate.length > 1) date.push(h('span.month', ` ${splitDate[1]}`))
-			if (day.past || !day.hasJourneys || !day.duration) {
-				days.push(h('td', { class: 'cell empty' + dayClass }, [
-					h('span.date', date),
-					h('div.priceGroup', [h('span.price', '–')]),
-					h('span.duration', '\u200D'),
-				]))
-			} else {
-				days.push(h('td', { class: (day.cheapest ? 'cheapest' : '') + dayClass }, [
-					h('a', { class: 'cell', href: dayURL(api, data, day) }, [
-						h('span.date', date),
-						h('div.priceGroup', [
-							h('span.price', [
-								day.price
-									? h('span.priceLong', [day.price.euros, h('sup', day.price.cents)])
-									: h('span.priceLong', '–'),
-								day.price
-									? h('span.priceShort', Math.round(+day.price.euros + (+day.price.cents / 100)) + '€')
-									: h('span.priceShort', '–'),
-							]),
-							h('span.inlineDuration', day.duration),
-						]),
-						h('span.duration', '🕒 ' + day.duration),
-					]),
-				]))
+	const days = data.output.flat()
+	const months = []
+	for (const day of days) {
+		const key = moment(day.date.raw).format('YYYY-MM')
+		let month = months.find(m => m.key === key)
+		if (!month) {
+			month = {
+				key,
+				label: moment(day.date.raw).locale('de').format('MMMM YYYY'),
+				days: [],
 			}
+			months.push(month)
 		}
-		weeks.push(h((counter++ % 2 === 0) ? 'tr.even' : 'tr', days))
+		month.days.push(day)
 	}
-	return h('table#calendar', [
-		h('thead', [h('tr', [
-			h('th', [
-				h('span.dayLong', 'Montag'),
-				h('span.dayShort', 'Mo'),
+
+	return h('div#calendar-grid', months.map((month) => {
+		const rows = monthWeeks(month.days)
+		return h('section.month-card', [
+			h('h2.month-title', month.label),
+			h('table.month-calendar', [
+				h('thead', [h('tr', weekdays.map(day => h('th', day)))]),
+				h('tbody', rows.map((week, index) =>
+					h(index % 2 === 0 ? 'tr.even' : 'tr', week.map(day => dayCell(api, data, day))),
+				)),
 			]),
-			h('th', [
-				h('span.dayLong', 'Dienstag'),
-				h('span.dayShort', 'Di'),
-			]),
-			h('th', [
-				h('span.dayLong', 'Mittwoch'),
-				h('span.dayShort', 'Mi'),
-			]),
-			h('th', [
-				h('span.dayLong', 'Donnerstag'),
-				h('span.dayShort', 'Do'),
-			]),
-			h('th', [
-				h('span.dayLong', 'Freitag'),
-				h('span.dayShort', 'Fr'),
-			]),
-			h('th', [
-				h('span.dayLong', 'Samstag'),
-				h('span.dayShort', 'Sa'),
-			]),
-			h('th', [
-				h('span.dayLong', 'Sonntag'),
-				h('span.dayShort', 'So'),
-			]),
-		])]),
-		h('tbody', weeks),
-	])
+		])
+	}))
 }
 
 const dayURL = (api, data, day) => {
 	if (!data) return null
 	const date = moment(day.date.raw).format('DD.MM.YYYY')
-	return `./day?origin=${data.input.origin.name}&destination=${data.input.destination.name}&${api.options.url(data.input).join('&')}&date=${date}`
+	return `./day?${helpers.withOptionsQuery(api, data.input, { date })}`
 }
 
 const moreLink = (api, data) => {
 	if (!data) return null
 	const weeks = (data.input.weeks + 2 <= 12) ? data.input.weeks + 2 : 12
-	return [h('a', { id: 'later', href: `./calendar?origin=${data.input.origin.name}&destination=${data.input.destination.name}&${api.options.url(data.input).join('&')}&weeks=${weeks}&submit=Y#later` }, 'Mehr anzeigen...')]
+	return [h('a', {
+		id: 'later',
+		href: `./calendar?${helpers.withOptionsQuery(api, data.input, { weeks, submit: 'Y' })}#later`,
+		'data-loading-message': 'Lade weitere Tage...',
+	}, 'Mehr anzeigen...')]
 }
 
 const createTemplate = api => (data, error) => {

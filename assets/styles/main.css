@@ -1,26 +1,23 @@
 input{
-	appearance: none;
-	-moz-appearance: none;
-	-webkit-appearance:none;
+    appearance: none;
+    -moz-appearance: none;
+    -webkit-appearance:none;
     padding: 0;
     margin: 0;
     border: 0;
     border-radius: 0;
+    font-family: inherit;
 }
 
 #page{
     min-width: 60%;
-	max-width: 90%;
+    max-width: 96%;
 }
 
 #error{
-	color: #f60;
-	max-width: 850px;
-}
-
-#success{
-	color: #0a8;
-	max-width: 850px;
+    color: var(--accent);
+    max-width: 850px;
+    font-weight: 600;
 }
 
 #form{
@@ -30,118 +27,139 @@ input{
     justify-content: center;
     width: 100%;
     margin-bottom: .5rem;
-	margin-top: .3rem;
+    margin-top: .3rem;
+    gap: .4rem;
 }
 
 .station{
-	position: relative;
+    position: relative;
     width: 100%;
-    border: .15rem solid #077;
-    border-radius: .2rem;
-    font-size: 1.5rem;
-    margin-top: .3rem;
-    margin-bottom: .3rem;
+    border: 3px solid var(--border);
+    border-radius: var(--radius);
+    font-size: 1.4rem;
     display: flex;
     flex-direction: row;
     align-items: center;
     justify-content: flex-start;
-    background: #077;
+    background: var(--surface);
+    box-shadow: var(--shadow-sm);
 }
 
-.station span{
-    color: #fff;
-    /*width: 15%;*/
-    background: #077;
+.station > span{
+    color: var(--on-accent);
+    background: var(--accent);
     font-size: 105%;
-    padding: .25rem .4rem .05rem .3rem;
+    padding: .35rem .5rem .2rem .45rem;
     line-height: 120%;
-    max-width: 1.7em;
+    max-width: 1.8em;
+    border-right: 3px solid var(--border);
 }
 
 .station input{
-    /*width: 85%;*/
     width: 100%;
-    color: #077;
-    font-family: Helvetica;
-    padding: .25rem 0rem .05rem .4rem;
+    color: var(--text);
+    padding: .35rem .4rem .2rem .5rem;
     line-height: 120%;
     font-size: 105%;
     border: 0;
+    background: transparent;
+}
+
+.station input::placeholder{
+    color: var(--muted);
 }
 
 #go{
     width: 100%;
-    border: .15rem solid #077;
-    border-radius: .2rem;
-    font-size: 1.5rem;
-    margin-top: .3rem;
-    margin-bottom: .3rem;
-    background: #077;
+    border: 3px solid var(--border);
+    border-radius: var(--radius);
+    font-size: 1.4rem;
+    background: var(--accent);
+    box-shadow: var(--shadow-sm);
 }
 
 #go input{
-    background: #088;
+    background: transparent;
     cursor: pointer;
     width: 100%;
-    color: #fff;
-    font-family: Helvetica;
-    padding: .25rem .4rem .05rem .4rem;
+    color: var(--on-accent);
+    padding: .35rem .6rem .2rem .6rem;
     line-height: 120%;
     font-size: 105%;
     border: 0;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: .04em;
 }
 
 #go input:hover{
-    opacity: 0.9;
+    background: rgba(255,255,255,0.15);
+}
+
+#go input:active{
+    transform: translate(1px, 1px);
+    box-shadow: var(--shadow-sm);
 }
 
 select{
-	appearance: none;
-	-moz-appearance: none;
-	-webkit-appearance:none;
+    appearance: none;
+    -moz-appearance: none;
+    -webkit-appearance:none;
 }
 select::-ms-expand {
     display: none;
 }
 
 #options{
-	margin-top: .3em;
-	margin-bottom: 1.5em;
-	color: #044;
-	font-size: 92.5%;
-	/*margin-top: .5em;*/
-	line-height: 155%;
-	text-align: center;
-	font-style: italic;
-	width: 95%;
+    margin-top: .4em;
+    margin-bottom: 1.5em;
+    color: var(--muted);
+    font-size: 92.5%;
+    line-height: 155%;
+    text-align: center;
+    font-style: italic;
+    width: 95%;
+    display: flex;
+    flex-wrap: wrap;
+    gap: .35rem .6rem;
+    justify-content: center;
+    align-items: center;
+}
+
+.optRow{
+    display: inline-flex;
+    align-items: center;
+    gap: .15rem;
+    flex-wrap: wrap;
+    max-width: 100%;
 }
 
 #options input, #options select{
-	border-radius: 0;
-	-webkit-appearance: none;
-	font-style: italic;
-	font-size: 100%;
-	border: none;
-	cursor: pointer;
-	text-align: center;
-	color: #077;
-	line-height: 125%;
-	background: none;
-	text-align-last:center;
-	text-align: -webkit-center;
+    font-style: italic;
+    font-size: 100%;
+    border: none;
+    cursor: pointer;
+    text-align: center;
+    color: var(--text);
+    line-height: 125%;
+    background: none;
+    text-align-last:center;
+    text-align: -webkit-center;
+    border-bottom: 2px solid transparent;
 }
 
 #options input:hover, #options input:focus, #options select:hover, #options select:focus{
-	border-bottom: .1em dashed #033;
+    border-bottom: 2px solid var(--border);
+    outline: none;
 }
 
 @media (min-width: 550px) {
     #header h1{
         font-size: 4rem;
-		margin-top: 1rem;
+        margin-top: 1rem;
     }
     #options{
-        margin-bottom: 3.5rem;
+        margin-bottom: 3rem;
     }
 }
 
@@ -151,12 +169,12 @@ select::-ms-expand {
     }
     #form{
         flex-direction: row;
-		margin-top: .8rem;
+        margin-top: .8rem;
     }
-	#options{
-		font-size: 95%;
-		margin-bottom: 4.5rem;
-	}
+    #options{
+        font-size: 95%;
+        margin-bottom: 4rem;
+    }
     .station{
         width: 47.5%;
         margin-left: .1rem;
@@ -167,10 +185,7 @@ select::-ms-expand {
         margin-left: .1rem;
         margin-right: .1rem;
     }
-	.subtitle{
-		font-size: 110%;
-	}
-	.optRow{
-		white-space: nowrap;
-	}
+    .subtitle{
+        font-size: 110%;
+    }
 }

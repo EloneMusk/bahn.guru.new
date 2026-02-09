@@ -138,7 +138,7 @@ const journeyTable = (api, data) => {
 			h('td.changes', '' + journey.transfers),
 			h('td', { class: 'via columnMiddle' }, journey.via),
 			h('td', products(journey)),
-			h('td.price', [h('a', { href: journey.link, title: api.settings.shopLinkTitle }, price(journey))]),
+			h('td.price', [h('a', { href: journey.link, title: api.settings.shopLinkTitle, target: '_blank', rel: 'noopener noreferrer' }, price(journey))]),
 		])])
 	}
 	return h('table#journeys', [head, h('tbody', rows)])
@@ -161,7 +161,11 @@ const generateSubTitleRoute = (data) => {
 
 const generateSubTitleOptions = (api, data) => {
 	const result = api.options.text(data.input)
-	const changeLink = h('a', { href: './start?origin=' + data.input.origin.name + '&destination=' + data.input.destination.name + '&' + (api.options.url(data.input).join('&')), id: 'change' }, 'Anfrage ändern...')
+	const changeLink = h('a', {
+		href: './start?' + helpers.withOptionsQuery(api, data.input),
+		id: 'change',
+		'data-loading-message': 'Zur Eingabe...',
+	}, 'Anfrage ändern...')
 	if (result.length) {
 		result.push('. ')
 	}

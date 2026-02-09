@@ -1,22 +1,21 @@
 #page{
     min-width: 90%;
     max-width: 90%;
-    color: #333 !important;
 }
 
 #page a, #page a:visited {
-     color: #666 !important;
+    color: var(--text);
 }
 
 #page h1 {
-    color: #db0000 !important;
+    color: var(--accent);
 }
 
 #page h2{
     line-height: 120%;
     font-size: 140%;
     margin-top: .2rem;
-    color: #db0000 !important;
+    color: var(--accent);
 }
 
 .question, .continue {
@@ -24,6 +23,10 @@
     text-align: left;
     margin: .8em 0;
     max-width: 900px;
+    padding: .8rem;
+    border: 3px solid var(--border);
+    box-shadow: var(--shadow-sm);
+    background: var(--surface);
 }
 
 .continue p {
@@ -34,26 +37,22 @@
     font-size: 110%;
     line-height: 120%;
     margin-bottom: 0;
-    color: #db0000;
+    color: var(--accent);
 }
 
 .question p, .continue p{
     line-height: 1.3em;
-	margin-top: .5em;
+    margin-top: .5em;
     font-size: 90%;
 }
 
 .question p b {
-	font-weight: bold !important;
+    font-weight: 700;
 }
 
 .question a, .continue a{
-    text-decoration: none;
-    color: #333;
-}
-
-.question a:hover, .continue a:hover{
     text-decoration: underline;
+    color: var(--text);
 }
 
 .question:last-of-type, .continue:last-of-type{

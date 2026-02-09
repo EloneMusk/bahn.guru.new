@@ -3,48 +3,63 @@
     max-width: 95%;
 }
 
-#header{
-    margin-top: 1rem;
-    margin-bottom: .5rem;
-}
-
 #route{
-    font-weight: bold;
+    font-weight: 700;
 }
 
 #date{
-    font-weight: bold;
+    font-weight: 700;
 }
 
 #journeys{
     width: 100%;
     max-width: 900px;
-    font-size: 80%;
+    font-size: 82%;
     margin-bottom: 3rem;
+    border: 3px solid var(--border);
+    box-shadow: var(--shadow-sm);
+    background: var(--surface);
 }
 
 #journeys thead{
-    border-bottom: .15em solid #777;
-    font-weight: bold;
-    color: #777;
+    border-bottom: .2em solid var(--border);
+    font-weight: 700;
+    color: var(--on-accent);
+    background: var(--accent);
 }
 
 #journeys tr.even{
-	background: #eee;
+    background: rgba(0,0,0,0.04);
+}
+
+@media (prefers-color-scheme: dark){
+    #journeys tr.even{
+        background: rgba(255,255,255,0.06);
+    }
 }
 
 #journeys tbody tr{
-    border-bottom: .1em solid #777;
+    border-bottom: .1em solid var(--border);
 }
 
 #journeys td, th{
     text-align: center;
-    padding-top: .5em;
-    padding-bottom: .5em;
+    padding-top: .6em;
+    padding-bottom: .6em;
     line-height: 1.5em;
     padding-left: .2em;
     padding-right: .2em;
     vertical-align: middle;
+}
+
+#journeys td:first-child,
+#journeys th:first-child{
+    padding-left: .4em;
+}
+
+#journeys td:last-child,
+#journeys th:last-child{
+    padding-right: .4em;
 }
 
 #journeys .columnLong{
@@ -56,13 +71,34 @@
 }
 
 #journeys .price a{
-    color: #077;
-    font-weight: bold;
+    display: inline-flex;
+    width: auto;
+    min-width: 5.2em;
+    align-items: center;
+    justify-content: center;
+    gap: .2rem;
+    color: var(--on-accent);
+    font-weight: 700;
     text-decoration: none;
+    border: 2px solid var(--border);
+    background: var(--accent);
+    box-shadow: var(--shadow-sm);
+    padding: .25rem .6rem;
+    margin: 0 auto;
+}
+
+#journeys td.price{
+    padding-left: .35em;
+    padding-right: .35em;
 }
 
 #journeys .price a:hover{
-    text-decoration: underline;
+    filter: brightness(.9);
+}
+
+#journeys .price a:active{
+    transform: translate(1px, 1px);
+    box-shadow: var(--shadow-sm);
 }
 
 @media (min-width: 450px){
@@ -73,7 +109,7 @@
 
 @media (min-width: 550px){
     #journeys{
-        font-size: 90%;
+        font-size: 92%;
         margin-top: 1rem;
         margin-bottom: 3.5rem;
     }
@@ -103,6 +139,6 @@
     }
 
     #header{
-        margin-top: 3rem;
+        margin-top: 2.5rem;
     }
 }

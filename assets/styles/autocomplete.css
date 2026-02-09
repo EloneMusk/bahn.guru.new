@@ -13,31 +13,64 @@
     top: 1.45em !important;
     left: -.08em !important;
     right: -.075em !important;
-    background: rgba(0,90,90,0.9);
+    background: var(--surface);
     list-style: none;
     text-align: left;
-    color: #fff;
+    color: var(--text);
     overflow: auto;
     padding: 0;
     cursor: default;
     font-size: 100%;
-    border: .15rem solid #333;
+    border: 3px solid var(--border);
     border-top: none;
     z-index: 2;
+    box-shadow: var(--shadow-sm);
+    font-family: "Space Grotesk", "IBM Plex Sans", Helvetica, sans-serif;
+    letter-spacing: normal;
+    text-transform: none;
+    writing-mode: horizontal-tb;
+    text-orientation: mixed;
+    transform: none;
 }
 
 .sey-item{
-    padding: .3em .2em .1em .2em;
+    padding: .45em .5em .35em .5em;
     white-space: nowrap;
     overflow: hidden;
+    text-overflow: ellipsis;
+    text-transform: none;
+    letter-spacing: normal;
 }
 
 .sey-item span {
     padding: 0;
     margin: 0;
     background: none;
+    letter-spacing: normal;
+    text-transform: none;
+    border: 0 !important;
+    box-shadow: none !important;
+    max-width: none !important;
+    min-width: 0 !important;
+}
+
+.sey-char{
+    display: inline !important;
+    border: 0 !important;
+    box-shadow: none !important;
+    background: transparent !important;
+}
+
+.sey-item *{
+    writing-mode: horizontal-tb;
+    text-orientation: mixed;
+    transform: none;
+    text-shadow: none;
+    letter-spacing: 0 !important;
+    font-family: "Space Grotesk", "IBM Plex Sans", Helvetica, sans-serif !important;
 }
 
 .sey-selected{
-    background: rgba(0,0,0,0.4);
+    background: var(--accent);
+    color: var(--on-accent);
 }

@@ -1,5 +1,5 @@
 #header, #header a{
-	color: #db0000;
+	color: var(--accent);
 }
 
 #class{

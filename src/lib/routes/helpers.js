@@ -32,6 +32,9 @@ export const staticHeader = api => {
 		h('meta', { charset: 'utf-8' }),
 		h('meta', { name: 'description', content: api.settings.description }),
 		h('meta', { name: 'viewport', content: 'width=device-width, initial-scale=1.0' }),
+		h('link', { rel: 'preconnect', href: 'https://fonts.googleapis.com' }),
+		h('link', { rel: 'preconnect', href: 'https://fonts.gstatic.com', crossorigin: true }),
+		h('link', { rel: 'stylesheet', href: 'https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;600;700&family=IBM+Plex+Mono:wght@500&display=swap' }),
 		h('link', { rel: 'stylesheet', type: 'text/css', href: '/assets/styles/reset.css' }),
 		h('link', { rel: 'stylesheet', type: 'text/css', href: '/assets/styles/base.css' }),
 		...(useUmami
@@ -50,7 +53,27 @@ check https://umami.is/docs/faq`),
 
 	if (api.settings.icon) { header.push(h('link', { rel: 'icon', type: 'image/png', href: joinUrl('/assets/', api.settings.icon) })) }
 
+	header.push(h('script', { src: '/assets/scripts/ui.js', defer: true }))
 	return header
+}
+
+export const withOptionsQuery = (api, input, extra = {}) => {
+	const params = new URLSearchParams()
+	if (input?.origin?.name) params.set('origin', input.origin.name)
+	if (input?.destination?.name) params.set('destination', input.destination.name)
+	const optionParts = (api?.options?.url && input) ? api.options.url(input) : []
+	for (const part of optionParts) {
+		const separator = part.indexOf('=')
+		if (separator <= 0) continue
+		const key = part.slice(0, separator)
+		const value = part.slice(separator + 1)
+		params.set(key, value)
+	}
+	for (const [key, value] of Object.entries(extra)) {
+		if (value === null || value === undefined || value === '') continue
+		params.set(key, String(value))
+	}
+	return params.toString()
 }
 
 export const toHtmlString = (e) => jsBeautify.html(toHtml(h(undefined, u('doctype'), h('html', e))))

@@ -6,6 +6,10 @@ const querystring = require('querystring').stringify
 
 const addAutocomplete = (api) => {
 	autocomplete(document.querySelector('#originInput'), {
+		highlighter: false,
+		renderItem: (li, suggestion) => {
+			li.textContent = suggestion
+		},
 		source: (data, done) => {
 			fetch(api.url + '?' + querystring(Object.assign(api.query || {}, { query: data.input })), { method: 'get', mode: 'cors' })
 				.then(r => r.json())
@@ -22,6 +26,10 @@ const addAutocomplete = (api) => {
 	})
 
 	autocomplete(document.querySelector('#destinationInput'), {
+		highlighter: false,
+		renderItem: (li, suggestion) => {
+			li.textContent = suggestion
+		},
 		source: (data, done) => {
 			fetch(api.url + '?' + querystring({ query: data.input }), { method: 'get', mode: 'cors' })
 				.then(r => r.json())
