@@ -30,3 +30,6 @@ assets/scripts/bundle
 
 # vercel
 .vercel
+
+# build artifacts
+public/
