@@ -8,10 +8,10 @@
 	--surface: #f5f1ec;
 	--text: #000000;
 	--muted: #7e7c78;
-	--accent: #ff8acd;
-	--accent-2: #ddd9d4;
-	--accent-3: #ffe2f3;
-	--on-accent: #000000;
+	--accent: #ec0016;
+	--accent-2: #f0f0f0;
+	--accent-3: #ffe6e6;
+	--on-accent: #ffffff;
 	--border: #b7b1a6;
 	--shadow: 4px 4px 0 #b7b1a6;
 	--shadow-sm: 2px 2px 0 #b7b1a6;
@@ -21,7 +21,7 @@
 	/* Fractal Feedback Colors */
 	--success: #3cd39d;
 	--warning: #ff9f69;
-	--danger: #ff5454;
+	--danger: #ec0016;
 
 	/* Fractal Typography */
 	--font-family:
@@ -42,10 +42,10 @@
 		--surface: #1a1a1a;
 		--text: #ffffff;
 		--muted: #b7b1a6;
-		--accent: #ff8acd;
+		--accent: #ec0016;
 		--accent-2: #3d3d3d;
-		--accent-3: #4a2a3d;
-		--on-accent: #000000;
+		--accent-3: #2a0a0a;
+		--on-accent: #ffffff;
 		--border: #4d4d4d;
 		--shadow: 4px 4px 0 #4d4d4d;
 		--shadow-sm: 2px 2px 0 #4d4d4d;

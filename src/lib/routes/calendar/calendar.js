@@ -105,7 +105,14 @@ const fillCalendar = (cal, formattedJourneyPerDay) => {
 };
 
 const calendar = (api, params, onProgress) => {
-	const q = new Queue({ concurrency: 2, interval: 1500, intervalCap: 2 });
+	const concurrency =
+		Number.parseInt(process.env.CALENDAR_CONCURRENCY, 10) || 5;
+	const interval =
+		Number.parseInt(process.env.CALENDAR_INTERVAL_MS, 10) || 1000;
+	const intervalCap =
+		Number.parseInt(process.env.CALENDAR_INTERVAL_CAP, 10) || 5;
+
+	const q = new Queue({ concurrency, interval, intervalCap });
 	const cal = generateCalendar(params.weeks, params.startDate);
 	const total = cal.filter((day) => !day.past).length;
 	let completed = 0;
