@@ -4,6 +4,7 @@ import { toHtml } from 'hast-util-to-html'
 import jsBeautify from 'js-beautify'
 
 const useUmami = process.env.ANALYTICS === 'true'
+const useSpeedInsights = process.env.SPEED_INSIGHTS !== 'false' // Enabled by default
 
 export const joinUrl = (base, path) => {
 	const baseClean = base.endsWith('/') ? base : `${base}/`
@@ -74,6 +75,14 @@ export const withOptionsQuery = (api, input, extra = {}) => {
 		params.set(key, String(value))
 	}
 	return params.toString()
+}
+
+export const speedInsights = () => {
+	if (!useSpeedInsights) return []
+	return [
+		h('script', {}, 'window.si = window.si || function () { (window.siq = window.siq || []).push(arguments); };'),
+		h('script', { defer: true, src: '/_vercel/speed-insights/script.js' }),
+	]
 }
 
 export const toHtmlString = (e) => jsBeautify.html(toHtml(h(undefined, u('doctype'), h('html', e))))

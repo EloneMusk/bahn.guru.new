@@ -1,4 +1,4 @@
-import "dotenv/config";
+import 'dotenv/config'
 import createServer from './lib/index.js'
 
 const port = (+process.env.PORT) || 3000
