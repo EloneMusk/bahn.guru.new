@@ -24,6 +24,7 @@ const generate = api => {
 			h('div#footer', [
 				h('a', { id: 'impressum', href: './impressum' }, 'Rechtliches'),
 			]),
+			...helpers.speedInsights(),
 		]),
 	])
 	return document

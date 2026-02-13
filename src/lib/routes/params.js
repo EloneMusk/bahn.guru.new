@@ -1,24 +1,23 @@
 const createParseParams = (api) => async (rawParams, opt) => {
-	const { stationsOptional } = opt || {};
+	const { stationsOptional } = opt || {}
 	const parsed = {
 		params: api.params(rawParams),
 		error: false,
-	};
+	}
 
 	try {
 		const [origin, destination] = await Promise.all([
 			api.station(rawParams.origin).catch((error) => null),
 			api.station(rawParams.destination).catch((error) => null),
-		]);
-		if (!stationsOptional && (!origin || !destination))
-			throw new Error("invalid stations");
-		if (origin) parsed.params.origin = origin;
-		if (destination) parsed.params.destination = destination;
+		])
+		if (!stationsOptional && (!origin || !destination)) { throw new Error('invalid stations') }
+		if (origin) parsed.params.origin = origin
+		if (destination) parsed.params.destination = destination
 	} catch (error) {
-		parsed.error = "invalid-stations";
+		parsed.error = 'invalid-stations'
 	}
 
-	return parsed;
-};
+	return parsed
+}
 
-export default createParseParams;
+export default createParseParams
