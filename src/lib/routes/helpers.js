@@ -76,4 +76,11 @@ export const withOptionsQuery = (api, input, extra = {}) => {
 	return params.toString()
 }
 
+export const speedInsightsScripts = () => {
+	return [
+		h('script', 'window.si = window.si || function () { (window.siq = window.siq || []).push(arguments); };'),
+		h('script', { defer: true, src: '/_vercel/speed-insights/script.js' }),
+	]
+}
+
 export const toHtmlString = (e) => jsBeautify.html(toHtml(h(undefined, u('doctype'), h('html', e))))

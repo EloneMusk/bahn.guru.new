@@ -46,6 +46,7 @@ const generate = (api) => {
 				h('span', ' – '),
 				h('a', { id: 'impressum', href: './impressum' }, 'Rechtliches'),
 			]),
+			...helpers.speedInsightsScripts(),
 		]),
 	])
 	return document
